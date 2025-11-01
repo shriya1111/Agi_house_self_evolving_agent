@@ -1,0 +1,48 @@
+# Environment
+.env
+.venv
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# W&B
+wandb/
+
+# Model weights
+models/
+*.ckpt
+*.safetensors
+*.pt
+*.pth
+
+# Generated images
+outputs/
+generated_images/
+
+# Logs
+logs/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/
+

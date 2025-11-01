@@ -1,0 +1,56 @@
+# Model Configuration
+models:
+  transcription:
+    provider: "openai" # or "local"
+    model: "whisper-1" # or "whisper-large-v3" for local
+
+  llm:
+    provider: "openai"
+    model: "gpt-4o"
+    temperature: 0.7
+    max_tokens: 2000
+
+  image_generation:
+    provider: "dall-e" # Options: "skip" (free, no images), "dall-e" (uses OpenAI key), "replicate", "local"
+    model: "dall-e-3" # For dall-e provider
+    num_inference_steps: 25 # For local/replicate
+    guidance_scale: 7.5 # For local/replicate
+    image_size: [1024, 1024]
+
+# Video Generation Configuration
+video_generation:
+  provider: "openai"  # or "replicate", "frame_animation"
+  duration: 4  # seconds (max 4 for OpenAI)
+
+# RL Configuration (Self-Evolution)
+rl:
+  algorithm: "PPO" # or "PolicyGradient"
+  learning_rate: 0.0003 # Explicit float (3e-4)
+  batch_size: 32
+  update_frequency: 10
+  reward_weight: 1.0
+  exploration_rate: 0.1
+
+# Firecrawl Configuration
+firecrawl:
+  targets:
+    - "https://www.reddit.com/r/videos"
+    - "https://www.reddit.com/r/youtube"
+    - "https://www.reddit.com/r/videoediting"
+  max_pages: 10
+  delay: 2 # seconds between requests
+
+# W&B Configuration
+wandb:
+  project: "self-evolving-image-gen"
+  entity: null # your wandb username/team
+  log_frequency: 1 # log every N iterations
+
+# Pipeline Configuration
+pipeline:
+  max_scenes: 10
+  scene_timeout: 300 # seconds
+  enable_rl: true
+  enable_observability: true
+  preview_mode: true # Generate only 1 preview image (first scene, start frame)
+  limit_preview_images: 1
