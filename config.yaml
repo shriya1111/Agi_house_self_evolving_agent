@@ -19,8 +19,8 @@ models:
 
 # Video Generation Configuration
 video_generation:
-  provider: "openai"  # or "replicate", "frame_animation"
-  duration: 4  # seconds (max 4 for OpenAI)
+  provider: "openai" # or "replicate", "frame_animation"
+  duration: 4 # seconds (max 4 for OpenAI)
 
 # RL Configuration (Self-Evolution)
 rl:

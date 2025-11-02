@@ -4,7 +4,17 @@ import time
 import re
 from pathlib import Path
 from typing import Dict, Any, List, Optional
-from firecrawl import FirecrawlApp
+
+# Try both import methods for Firecrawl
+try:
+    from firecrawl import FirecrawlApp
+except ImportError:
+    try:
+        from firecrawl_py import FirecrawlApp
+    except ImportError:
+        FirecrawlApp = None
+        print("Warning: firecrawl-py not available. Install with: pip install firecrawl-py")
+
 import asyncio
 
 # Add parent directory to path
@@ -24,8 +34,12 @@ class ViralityEvaluator:
             self.simulation_mode = True
         else:
             try:
+                if FirecrawlApp is None:
+                    raise ImportError("FirecrawlApp not available")
+                # Initialize Firecrawl with API key
                 self.app = FirecrawlApp(api_key=api_key)
                 self.simulation_mode = False
+                print(f"✓ Firecrawl initialized successfully")
             except Exception as e:
                 print(f"Warning: Firecrawl initialization failed: {e} - using simulation mode")
                 self.app = None
@@ -79,20 +93,72 @@ class ViralityEvaluator:
                             'mentions': len(keywords) if keywords else 0
                         }
                     else:
-                        # Try different API methods based on Firecrawl SDK version
+                        # Use Firecrawl API correctly - use 'scrape' method
                         try:
-                            # Method 1: Direct scrape_url
-                            scrape_result = self.app.scrape_url(url=target_url)
-                        except (AttributeError, TypeError):
-                            try:
-                                # Method 2: Using crawl if available
-                                scrape_result = self.app.crawl_url(target_url)
-                            except:
-                                # Fallback - simulate
-                                raise Exception("Firecrawl API methods not available")
-                        
-                        # Extract engagement metrics from scraped content
-                        metrics = self._extract_engagement_metrics(scrape_result, keywords)
+                            # Firecrawl-py uses 'scrape' method with URL parameter
+                            scrape_result = self.app.scrape(target_url)
+                            print(f"  ✓ Successfully scraped {target_url}")
+                            
+                            # Extract engagement metrics from scraped content
+                            metrics = self._extract_engagement_metrics(scrape_result, keywords)
+                            
+                            # Log to W&B with Weave tracking
+                            if self.metrics:
+                                firecrawl_data = {
+                                    'url': target_url,
+                                    'status': 'success',
+                                    'engagement_score': metrics.get('engagement_score', 0),
+                                    'upvotes': metrics.get('upvotes', 0),
+                                    'comments': metrics.get('comments', 0),
+                                    'keywords_matched': len(metrics.get('keywords_matched', [])),
+                                    'scraped_content_length': len(str(scrape_result)),
+                                    'pages_scraped': 1
+                                }
+                                
+                                # Use Weave if available for better tracking
+                                if hasattr(self.metrics, 'weave_available') and self.metrics.weave_available:
+                                    try:
+                                        import weave
+                                        weave.log({'firecrawl_scrape': firecrawl_data})
+                                    except:
+                                        pass
+                                
+                                # Also log to standard W&B
+                                self.metrics.log_scraping_metrics(firecrawl_data)
+                            
+                        except Exception as e:
+                            print(f"  ⚠ Firecrawl API error: {e}")
+                            print(f"  Using simulated virality data")
+                            # Fallback to simulation if API fails
+                            import random
+                            base_score = random.uniform(0.3, 0.8)
+                            if keywords:
+                                keyword_bonus = len(keywords) * 0.1
+                                base_score = min(0.9, base_score + keyword_bonus)
+                            scrape_result = {
+                                'markdown': f"Content from {target_url}",
+                                'content': f"Engagement data for demo"
+                            }
+                            metrics = {
+                                'engagement_score': base_score * 100,
+                                'keywords_matched': keywords or [],
+                                'upvotes': int(base_score * 1000),
+                                'comments': int(base_score * 100),
+                                'mentions': len(keywords) if keywords else 0
+                            }
+                            
+                            # Still log to W&B/Weave even for simulated data
+                            if self.metrics:
+                                firecrawl_data = {
+                                    'url': target_url,
+                                    'status': 'simulated',
+                                    'engagement_score': metrics.get('engagement_score', 0),
+                                    'upvotes': metrics.get('upvotes', 0),
+                                    'comments': metrics.get('comments', 0),
+                                    'keywords_matched': len(metrics.get('keywords_matched', [])),
+                                    'pages_scraped': 0
+                                }
+                                self.metrics.log_scraping_metrics(firecrawl_data)
                     
                     # Handle different response formats
                     if isinstance(scrape_result, dict):

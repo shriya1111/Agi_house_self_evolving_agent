@@ -311,6 +311,37 @@ class AgentOrchestrator:
         return results
     
     def execute_sync(self, *args, **kwargs):
-        """Synchronous wrapper for async workflow."""
-        return asyncio.run(self.execute_workflow(*args, **kwargs))
+        """Synchronous wrapper for async workflow - thread-safe for FastAPI."""
+        import concurrent.futures
+        import threading
+        
+        result_container = {'result': None, 'exception': None}
+        
+        def run_in_thread():
+            """Run async workflow in a completely isolated thread."""
+            try:
+                # Create completely new event loop for this thread
+                new_loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(new_loop)
+                try:
+                    result_container['result'] = new_loop.run_until_complete(
+                        self.execute_workflow(*args, **kwargs)
+                    )
+                finally:
+                    new_loop.close()
+            except Exception as e:
+                result_container['exception'] = e
+        
+        # Run in a daemon thread to avoid blocking
+        thread = threading.Thread(target=run_in_thread, daemon=False)
+        thread.start()
+        thread.join(timeout=300)  # 5 minute timeout
+        
+        if thread.is_alive():
+            raise TimeoutError("Pipeline execution timed out after 300 seconds")
+        
+        if result_container['exception']:
+            raise result_container['exception']
+        
+        return result_container['result']
 

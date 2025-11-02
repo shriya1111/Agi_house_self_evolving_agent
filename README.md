@@ -26,24 +26,28 @@ Firecrawl Virality Data ← RL Agent ← Image Generation (Stable Diffusion)
 ## Installation
 
 1. **Clone the repository**:
+
 ```bash
 git clone <repo-url>
 cd Agi_house_self_evolving_agent
 ```
 
 2. **Create virtual environment**:
+
 ```bash
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
 3. **Install dependencies**:
+
 ```bash
 pip install -r requirements.txt
 ```
 
 4. **Set up environment variables**:
-Create a `.env` file in the root directory:
+   Create a `.env` file in the root directory:
+
 ```bash
 OPENAI_API_KEY=your_openai_api_key
 FIRECRAWL_API_KEY=your_firecrawl_api_key
@@ -52,7 +56,7 @@ COMPOSIO_API_KEY=your_composio_api_key  # Optional
 ```
 
 5. **Configure settings**:
-Edit `config.yaml` to customize model settings, RL parameters, etc.
+   Edit `config.yaml` to customize model settings, RL parameters, etc.
 
 ## Usage
 
@@ -101,36 +105,43 @@ python main.py audio.mp3 \
 ## Components
 
 ### 1. Audio Transcription (`src/audio/transcriber.py`)
+
 - Uses OpenAI Whisper API or local model
 - Supports multiple languages
 - Tracks transcription confidence
 
 ### 2. Context Extraction (`src/context/extractor.py`)
+
 - GPT-4o extracts video intent, vibe, and style
 - Generates structured scene descriptions
 - Outputs JSON with start/end frame prompts
 
 ### 3. Image Generation (`src/generation/image_generator.py`)
+
 - Stable Diffusion XL for high-quality images
 - Generates start and end frames per scene
 - Supports GPU acceleration
 
 ### 4. Virality Evaluation (`src/evaluation/virality_evaluator.py`)
+
 - Firecrawl scrapes video forums (Reddit, etc.)
 - Extracts engagement metrics (upvotes, comments)
 - Calculates virality scores
 
 ### 5. RL Prompt Optimizer (`src/rl/prompt_optimizer.py`)
+
 - Policy gradient RL agent
 - Learns to optimize prompts based on virality rewards
 - Updates policy after each generation cycle
 
 ### 6. Observability (`src/observability/metrics.py`)
+
 - W&B integration for all metrics
 - Tracks transcription quality, image generation, RL rewards
 - Monitors GPU/CPU usage
 
 ### 7. Orchestration (`src/orchestration/orchestrator.py`)
+
 - Composio coordinates multi-agent workflow
 - Manages pipeline execution
 - Error handling and recovery
@@ -158,16 +169,19 @@ Edit `config.yaml` to customize:
 ## Troubleshooting
 
 ### Image Generation Fails
+
 - Ensure CUDA is installed if using GPU
 - Check GPU memory availability
 - Try reducing image size in `config.yaml`
 
 ### Firecrawl Errors
+
 - Verify `FIRECRAWL_API_KEY` is set
 - Check network connectivity
 - Review rate limits
 
 ### W&B Not Logging
+
 - Verify `WANDB_API_KEY` is set
 - Check internet connection
 - W&B will fall back to disabled mode if API key is missing
@@ -179,4 +193,3 @@ MIT License
 ## Contributors
 
 Built for the Self-Evolving Agent Build Day hackathon.
-

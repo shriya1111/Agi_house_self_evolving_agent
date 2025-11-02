@@ -6,7 +6,7 @@
 2. CUDA-capable GPU (recommended for image generation)
 3. API keys:
    - OpenAI API key
-   - Firecrawl API key  
+   - Firecrawl API key
    - Weights & Biases API key
    - Composio API key (optional)
 
@@ -33,11 +33,13 @@ python main.py path/to/your/audio.mp3 --output-dir outputs
 ## Example Workflow
 
 1. **Record a voice note** describing the video you want to create
+
    - Example: "I want to make a fast-paced tech product demo video with energetic music, bright colors, and dynamic camera movements. The video should showcase the product's key features in an exciting way."
 
 2. **Save as audio file** (MP3, WAV, etc.)
 
 3. **Run the agent**:
+
    ```bash
    python main.py your_voice_note.mp3
    ```
@@ -50,6 +52,7 @@ python main.py path/to/your/audio.mp3 --output-dir outputs
 ## Configuration
 
 Edit `config.yaml` to customize:
+
 - Model providers (OpenAI/local)
 - RL learning rate and parameters
 - Firecrawl target forums
@@ -58,15 +61,18 @@ Edit `config.yaml` to customize:
 ## Troubleshooting
 
 ### "Model not loaded" error
+
 - Check if CUDA is installed (for GPU)
 - Try reducing image size in `config.yaml`
 - Use CPU mode if GPU unavailable
 
 ### "API key not found" errors
+
 - Verify `.env` file has correct API keys
 - Ensure `.env` is in project root directory
 
 ### Firecrawl scraping fails
+
 - Check `FIRECRAWL_API_KEY` is set
 - Verify network connectivity
 - Review rate limits
@@ -98,4 +104,3 @@ This verifies all modules can be imported correctly.
 - Explore `config.yaml` for customization
 - Review W&B dashboard for metrics
 - Experiment with different audio inputs
-

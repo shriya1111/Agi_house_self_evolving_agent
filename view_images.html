@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>View Generated Images</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #f5f5f5; }
+        h1 { color: #333; }
+        .images { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .image-card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .image-card img { width: 100%; height: auto; border-radius: 4px; }
+        .image-card h3 { margin: 10px 0 5px 0; color: #333; }
+        .image-card p { color: #666; font-size: 0.9em; margin: 5px 0; }
+    </style>
+</head>
+<body>
+    <h1>🎬 Generated Images</h1>
+    <div id="images" class="images"></div>
+    
+    <script>
+        // Load images from API
+        fetch('http://localhost:8000/api/images')
+            .then(r => r.json())
+            .then(data => {
+                const container = document.getElementById('images');
+                data.images.forEach(img => {
+                    const card = document.createElement('div');
+                    card.className = 'image-card';
+                    card.innerHTML = `
+                        <img src="http://localhost:8000${img.url}" alt="${img.filename}" onerror="this.src='data:image/png;base64,' + '${img.base64.slice(0,100)}'">
+                        <h3>${img.filename}</h3>
+                        <p>Base64: ${img.base64 ? img.base64.length : 0} chars</p>
+                    `;
+                    container.appendChild(card);
+                });
+            })
+            .catch(e => {
+                document.getElementById('images').innerHTML = 
+                    '<p>Error loading images. Make sure API is running at http://localhost:8000</p>';
+            });
+    </script>
+</body>
+</html>
+

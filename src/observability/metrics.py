@@ -1,4 +1,4 @@
-"""Weights & Biases metrics logging."""
+"""Weights & Biases metrics logging with Weave."""
 import sys
 import os
 import psutil
@@ -10,6 +10,15 @@ import wandb
 # Add parent directory to path
 sys.path.append(str(Path(__file__).parent.parent.parent))
 from src.config import config
+
+# Weave integration (3 lines)
+try:
+    import weave
+    weave.init(project_name=config.get('wandb.project', 'self-evolving-image-gen'))
+    WEAVE_AVAILABLE = True
+except ImportError:
+    WEAVE_AVAILABLE = False
+    print("Warning: Weave not available. Install with: pip install weave")
 
 class MetricsLogger:
     """Centralized metrics logging with Weights & Biases."""
@@ -23,6 +32,9 @@ class MetricsLogger:
         api_key = config.get_api_key('wandb')
         if api_key:
             os.environ['WANDB_API_KEY'] = api_key
+        
+        # Check if Weave is available
+        self.weave_available = WEAVE_AVAILABLE
         
         wandb.init(
             project=self.project_name,
@@ -88,13 +100,23 @@ class MetricsLogger:
         })
     
     def log_scraping_metrics(self, metrics: Dict[str, Any]):
-        """Log Firecrawl scraping metrics."""
+        """Log Firecrawl scraping metrics with Weave."""
+        # Log to W&B
         wandb.log({
             'scraping/url': metrics.get('url', 'unknown'),
             'scraping/pages_scraped': metrics.get('pages_scraped', 0),
             'scraping/engagement_score': metrics.get('engagement_score', 0),
-            'scraping/keywords_found': metrics.get('keywords_found', 0)
+            'scraping/keywords_found': metrics.get('keywords_found', 0),
+            'scraping/status': metrics.get('status', 'unknown')
         })
+        
+        # Also log to Weave if available
+        if self.weave_available:
+            try:
+                import weave
+                weave.log({'firecrawl_scraping': metrics})
+            except Exception:
+                pass
     
     def log_virality_evaluation(self, metrics: Dict[str, Any]):
         """Log virality evaluation metrics."""

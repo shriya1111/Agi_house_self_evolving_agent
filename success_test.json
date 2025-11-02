@@ -1,0 +1,1 @@
+{"success":false,"message":"Processing failed","transcription":null,"context":null,"scenes":null,"images":null,"virality_scores":null,"optimizations":null,"error":"Error processing audio: asyncio.run() cannot be called from a running event loop"}
